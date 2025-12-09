@@ -559,12 +559,11 @@ See the [LICENSE](https://www.gnu.org/licenses/gpl-2.0.html) for full details.
 
 ## Credits
 
-Config Guardian is developed and maintained by the Drupal community.
+Config Guardian was created by **Andrés Moreno** ([@andresmoreno28](https://github.com/andresmoreno28)).
 
-**Key Contributors:**
-- Initial development and architecture
-- UI/UX design and implementation
-- Documentation and testing
+- Architecture and development
+- UI/UX design
+- Documentation
 
 ---
 
