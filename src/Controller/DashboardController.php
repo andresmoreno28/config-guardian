@@ -119,6 +119,15 @@ class DashboardController extends ControllerBase {
       '#attached' => [
         'library' => ['config_guardian/config-guardian'],
       ],
+      '#cache' => [
+        'tags' => [
+          'config_guardian_snapshot_list',
+          'config_guardian_activity_list',
+          'config:core.extension',
+        ],
+        'contexts' => ['user.permissions'],
+        'max-age' => 300,
+      ],
     ];
   }
 

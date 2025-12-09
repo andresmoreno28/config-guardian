@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\config_guardian\Service;
 
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -35,17 +37,32 @@ class ActivityLoggerService {
   protected Connection $database;
 
   /**
+   * The time service.
+   */
+  protected TimeInterface $time;
+
+  /**
+   * The cache tags invalidator.
+   */
+  protected CacheTagsInvalidatorInterface $cacheTagsInvalidator;
+
+  /**
    * Constructs an ActivityLoggerService object.
    */
   public function __construct(
     EntityTypeManagerInterface $entity_type_manager,
     AccountProxyInterface $current_user,
     RequestStack $request_stack,
+    Connection $database,
+    TimeInterface $time,
+    CacheTagsInvalidatorInterface $cache_tags_invalidator,
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
     $this->requestStack = $request_stack;
-    $this->database = \Drupal::database();
+    $this->database = $database;
+    $this->time = $time;
+    $this->cacheTagsInvalidator = $cache_tags_invalidator;
   }
 
   /**
@@ -80,10 +97,13 @@ class ActivityLoggerService {
         'snapshot_id' => $snapshot_id,
         'user_id' => $this->currentUser->id(),
         'ip_address' => $ip_address,
-        'timestamp' => \Drupal::time()->getRequestTime(),
+        'timestamp' => $this->time->getRequestTime(),
         'status' => $status,
       ])
       ->execute();
+
+    // Invalidate cache tags to refresh dashboard.
+    $this->cacheTagsInvalidator->invalidateTags(['config_guardian_activity_list']);
   }
 
   /**
@@ -183,11 +203,17 @@ class ActivityLoggerService {
    *   Number of deleted entries.
    */
   public function cleanup(int $days): int {
-    $cutoff = \Drupal::time()->getRequestTime() - ($days * 86400);
+    $cutoff = $this->time->getRequestTime() - ($days * 86400);
 
-    return $this->database->delete('config_guardian_activity_log')
+    $deleted = $this->database->delete('config_guardian_activity_log')
       ->condition('timestamp', $cutoff, '<')
       ->execute();
+
+    if ($deleted > 0) {
+      $this->cacheTagsInvalidator->invalidateTags(['config_guardian_activity_list']);
+    }
+
+    return $deleted;
   }
 
 }

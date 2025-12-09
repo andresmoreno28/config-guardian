@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\config_guardian\Service;
 
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Component\Uuid\UuidInterface;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\Database\Connection;
@@ -66,6 +69,21 @@ class SnapshotManagerService {
   protected Connection $database;
 
   /**
+   * The UUID generator.
+   */
+  protected UuidInterface $uuid;
+
+  /**
+   * The time service.
+   */
+  protected TimeInterface $time;
+
+  /**
+   * The cache tags invalidator.
+   */
+  protected CacheTagsInvalidatorInterface $cacheTagsInvalidator;
+
+  /**
    * Constructs a SnapshotManagerService object.
    */
   public function __construct(
@@ -77,6 +95,10 @@ class SnapshotManagerService {
     AccountProxyInterface $current_user,
     LoggerChannelFactoryInterface $logger_factory,
     SettingsService $settings,
+    Connection $database,
+    UuidInterface $uuid,
+    TimeInterface $time,
+    CacheTagsInvalidatorInterface $cache_tags_invalidator,
   ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->configStorage = $config_storage;
@@ -86,7 +108,10 @@ class SnapshotManagerService {
     $this->currentUser = $current_user;
     $this->logger = $logger_factory->get('config_guardian');
     $this->settings = $settings;
-    $this->database = \Drupal::database();
+    $this->database = $database;
+    $this->uuid = $uuid;
+    $this->time = $time;
+    $this->cacheTagsInvalidator = $cache_tags_invalidator;
   }
 
   /**
@@ -154,7 +179,7 @@ class SnapshotManagerService {
     $hash = hash('sha256', json_encode($full_snapshot_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
     // Generate UUID.
-    $uuid = \Drupal::service('uuid')->generate();
+    $uuid = $this->uuid->generate();
 
     // Total config count is the max of both (unique configs).
     $all_config_names = array_unique(array_merge(
@@ -172,7 +197,7 @@ class SnapshotManagerService {
         'config_data' => $compressed_data,
         'config_hash' => $hash,
         'config_count' => count($all_config_names),
-        'created' => \Drupal::time()->getRequestTime(),
+        'created' => $this->time->getRequestTime(),
         'created_by' => $this->currentUser->id(),
       ])
       ->execute();
@@ -193,6 +218,9 @@ class SnapshotManagerService {
       '@active' => count($active_data),
       '@sync' => count($sync_data),
     ]);
+
+    // Invalidate cache tags to refresh dashboard.
+    $this->cacheTagsInvalidator->invalidateTags(['config_guardian_snapshot_list']);
 
     return $snapshot;
   }
@@ -288,6 +316,8 @@ class SnapshotManagerService {
 
     if ($deleted) {
       $this->logger->info('Snapshot @id deleted', ['@id' => $id]);
+      // Invalidate cache tags to refresh dashboard.
+      $this->cacheTagsInvalidator->invalidateTags(['config_guardian_snapshot_list']);
     }
 
     return $deleted > 0;
@@ -476,6 +506,8 @@ class SnapshotManagerService {
    *   Maximum number of snapshots to keep.
    */
   public function cleanupOldSnapshots(int $cutoff_timestamp, int $max_snapshots): void {
+    $total_deleted = 0;
+
     // Delete by age.
     $deleted = $this->database->delete('config_guardian_snapshot')
       ->condition('created', $cutoff_timestamp, '<')
@@ -483,6 +515,7 @@ class SnapshotManagerService {
       ->execute();
 
     if ($deleted > 0) {
+      $total_deleted += $deleted;
       $this->logger->info('Deleted @count old snapshots based on retention policy.', [
         '@count' => $deleted,
       ]);
@@ -505,10 +538,16 @@ class SnapshotManagerService {
           ->condition('id', $old_ids, 'IN')
           ->execute();
 
+        $total_deleted += count($old_ids);
         $this->logger->info('Deleted @count excess snapshots.', [
           '@count' => count($old_ids),
         ]);
       }
+    }
+
+    // Invalidate cache tags if any snapshots were deleted.
+    if ($total_deleted > 0) {
+      $this->cacheTagsInvalidator->invalidateTags(['config_guardian_snapshot_list']);
     }
   }
 
@@ -614,7 +653,7 @@ class SnapshotManagerService {
     }
 
     // If both methods fail, return empty array.
-    \Drupal::logger('config_guardian')->error('Failed to decompress snapshot data');
+    $this->logger->error('Failed to decompress snapshot data');
     return [];
   }
 

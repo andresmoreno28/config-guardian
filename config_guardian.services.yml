@@ -10,6 +10,10 @@ services:
       - '@current_user'
       - '@logger.factory'
       - '@config_guardian.settings'
+      - '@database'
+      - '@uuid'
+      - '@datetime.time'
+      - '@cache_tags.invalidator'
 
   config_guardian.config_analyzer:
     class: Drupal\config_guardian\Service\ConfigAnalyzerService
@@ -45,6 +49,9 @@ services:
       - '@entity_type.manager'
       - '@current_user'
       - '@request_stack'
+      - '@database'
+      - '@datetime.time'
+      - '@cache_tags.invalidator'
 
   config_guardian.settings:
     class: Drupal\config_guardian\Service\SettingsService
