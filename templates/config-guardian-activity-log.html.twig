@@ -1,0 +1,69 @@
+{#
+/**
+ * @file
+ * Template for activity log.
+ *
+ * Available variables:
+ * - activities: List of activity log entries
+ */
+#}
+
+<div class="config-guardian-activity">
+  {% if activities %}
+    <table class="cg-table cg-activity-table">
+      <thead>
+        <tr>
+          <th>{{ 'Status'|t }}</th>
+          <th>{{ 'Action'|t }}</th>
+          <th>{{ 'Details'|t }}</th>
+          <th>{{ 'User'|t }}</th>
+          <th>{{ 'Timestamp'|t }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for activity in activities %}
+          <tr class="cg-activity-row cg-activity-row--{{ activity.status }}">
+            <td>
+              <span class="cg-status-indicator cg-status-indicator--{{ activity.status }}">
+                {% if activity.status == 'success' %}
+                  &#10003;
+                {% elseif activity.status == 'error' %}
+                  &#10005;
+                {% else %}
+                  &#9888;
+                {% endif %}
+              </span>
+            </td>
+            <td>
+              <strong>{{ (activity.action|replace({'_': ' '})|capitalize)|t }}</strong>
+            </td>
+            <td>
+              {% if activity.details %}
+                <details class="cg-activity-details">
+                  <summary>{{ 'View details'|t }}</summary>
+                  <pre>{{ activity.details|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                </details>
+              {% else %}
+                <span class="cg-muted">{{ 'No details'|t }}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if activity.user_id %}
+                {{ 'User #'|t }}{{ activity.user_id }}
+              {% else %}
+                {{ 'System'|t }}
+              {% endif %}
+            </td>
+            <td>
+              {{ activity.timestamp|date('Y-m-d H:i:s') }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="cg-empty-state">
+      <p>{{ 'No activity recorded yet.'|t }}</p>
+    </div>
+  {% endif %}
+</div>

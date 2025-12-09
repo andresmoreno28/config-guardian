@@ -1,0 +1,170 @@
+{#
+/**
+ * @file
+ * Skeleton loader component for Config Guardian.
+ *
+ * Provides loading placeholder animations while content is being fetched.
+ *
+ * Available variables:
+ * - type: The type of skeleton (text, card, table, graph). Default: 'text'
+ * - lines: Number of text lines to show (for type='text'). Default: 3
+ * - rows: Number of table rows (for type='table'). Default: 5
+ * - columns: Number of table columns (for type='table'). Default: 4
+ * - height: Custom height for the skeleton. Default: 'auto'
+ * - width: Custom width for the skeleton. Default: '100%'
+ * - animated: Whether to show shimmer animation. Default: true
+ * - class: Additional CSS classes.
+ *
+ * Usage examples:
+ * @code
+ * {% include '@config_guardian/components/skeleton-loader.html.twig' with {
+ *   type: 'card',
+ *   animated: true
+ * } %}
+ *
+ * {% include '@config_guardian/components/skeleton-loader.html.twig' with {
+ *   type: 'table',
+ *   rows: 10,
+ *   columns: 5
+ * } %}
+ * @endcode
+ */
+#}
+
+{% set type = type|default('text') %}
+{% set lines = lines|default(3) %}
+{% set rows = rows|default(5) %}
+{% set columns = columns|default(4) %}
+{% set height = height|default('auto') %}
+{% set width = width|default('100%') %}
+{% set animated = animated|default(true) %}
+{% set extra_class = class|default('') %}
+
+{% set base_classes = [
+  'cg-skeleton',
+  'cg-skeleton--' ~ type,
+  animated ? 'cg-skeleton--animated' : '',
+  extra_class
+]|filter(v => v)|join(' ') %}
+
+{% if type == 'text' %}
+  {# Text skeleton - multiple lines with varying widths #}
+  <div class="{{ base_classes }}" style="width: {{ width }};" aria-hidden="true" role="presentation">
+    {% for i in 1..lines %}
+      {% set line_width = i == lines ? '60%' : (i is odd ? '100%' : '85%') %}
+      <div class="cg-skeleton__line" style="width: {{ line_width }};"></div>
+    {% endfor %}
+  </div>
+
+{% elseif type == 'card' %}
+  {# Card skeleton - header, image placeholder, content #}
+  <div class="{{ base_classes }}" style="width: {{ width }}; height: {{ height }};" aria-hidden="true" role="presentation">
+    <div class="cg-skeleton__card">
+      <div class="cg-skeleton__card-header">
+        <div class="cg-skeleton__avatar"></div>
+        <div class="cg-skeleton__card-meta">
+          <div class="cg-skeleton__line" style="width: 60%;"></div>
+          <div class="cg-skeleton__line cg-skeleton__line--small" style="width: 40%;"></div>
+        </div>
+      </div>
+      <div class="cg-skeleton__card-image"></div>
+      <div class="cg-skeleton__card-content">
+        <div class="cg-skeleton__line" style="width: 100%;"></div>
+        <div class="cg-skeleton__line" style="width: 80%;"></div>
+        <div class="cg-skeleton__line" style="width: 60%;"></div>
+      </div>
+      <div class="cg-skeleton__card-actions">
+        <div class="cg-skeleton__button"></div>
+        <div class="cg-skeleton__button"></div>
+      </div>
+    </div>
+  </div>
+
+{% elseif type == 'table' %}
+  {# Table skeleton - header row + data rows #}
+  <div class="{{ base_classes }}" style="width: {{ width }};" aria-hidden="true" role="presentation">
+    <div class="cg-skeleton__table">
+      {# Header row #}
+      <div class="cg-skeleton__table-row cg-skeleton__table-row--header">
+        {% for col in 1..columns %}
+          <div class="cg-skeleton__table-cell">
+            <div class="cg-skeleton__line" style="width: 80%;"></div>
+          </div>
+        {% endfor %}
+      </div>
+      {# Data rows #}
+      {% for row in 1..rows %}
+        <div class="cg-skeleton__table-row">
+          {% for col in 1..columns %}
+            {% set cell_width = [100, 85, 70, 90, 75][col % 5] ~ '%' %}
+            <div class="cg-skeleton__table-cell">
+              <div class="cg-skeleton__line" style="width: {{ cell_width }};"></div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% elseif type == 'graph' %}
+  {# Graph skeleton - circular nodes with connecting lines #}
+  <div class="{{ base_classes }}" style="width: {{ width }}; height: {{ height|default('400px') }};" aria-hidden="true" role="presentation">
+    <div class="cg-skeleton__graph">
+      <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet">
+        {# Connection lines #}
+        <line class="cg-skeleton__graph-line" x1="200" y1="150" x2="100" y2="80"></line>
+        <line class="cg-skeleton__graph-line" x1="200" y1="150" x2="300" y2="80"></line>
+        <line class="cg-skeleton__graph-line" x1="200" y1="150" x2="100" y2="220"></line>
+        <line class="cg-skeleton__graph-line" x1="200" y1="150" x2="300" y2="220"></line>
+        <line class="cg-skeleton__graph-line" x1="100" y1="80" x2="50" y2="50"></line>
+        <line class="cg-skeleton__graph-line" x1="300" y1="80" x2="350" y2="50"></line>
+
+        {# Nodes #}
+        <circle class="cg-skeleton__graph-node cg-skeleton__graph-node--large" cx="200" cy="150" r="25"></circle>
+        <circle class="cg-skeleton__graph-node" cx="100" cy="80" r="18"></circle>
+        <circle class="cg-skeleton__graph-node" cx="300" cy="80" r="18"></circle>
+        <circle class="cg-skeleton__graph-node" cx="100" cy="220" r="18"></circle>
+        <circle class="cg-skeleton__graph-node" cx="300" cy="220" r="18"></circle>
+        <circle class="cg-skeleton__graph-node cg-skeleton__graph-node--small" cx="50" cy="50" r="12"></circle>
+        <circle class="cg-skeleton__graph-node cg-skeleton__graph-node--small" cx="350" cy="50" r="12"></circle>
+      </svg>
+      <div class="cg-skeleton__graph-legend">
+        <div class="cg-skeleton__line" style="width: 120px;"></div>
+      </div>
+    </div>
+  </div>
+
+{% elseif type == 'list' %}
+  {# List skeleton - icon + text items #}
+  <div class="{{ base_classes }}" style="width: {{ width }};" aria-hidden="true" role="presentation">
+    <div class="cg-skeleton__list">
+      {% for i in 1..lines %}
+        <div class="cg-skeleton__list-item">
+          <div class="cg-skeleton__icon"></div>
+          <div class="cg-skeleton__list-content">
+            <div class="cg-skeleton__line" style="width: {{ [100, 85, 90, 75, 80][i % 5] ~ '%' }};"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% elseif type == 'stats' %}
+  {# Stats grid skeleton - metric cards #}
+  <div class="{{ base_classes }}" style="width: {{ width }};" aria-hidden="true" role="presentation">
+    <div class="cg-skeleton__stats-grid">
+      {% for i in 1..4 %}
+        <div class="cg-skeleton__stat-card">
+          <div class="cg-skeleton__stat-value"></div>
+          <div class="cg-skeleton__line" style="width: 70%;"></div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% else %}
+  {# Generic block skeleton #}
+  <div class="{{ base_classes }}" style="width: {{ width }}; height: {{ height }};" aria-hidden="true" role="presentation">
+    <div class="cg-skeleton__block"></div>
+  </div>
+{% endif %}

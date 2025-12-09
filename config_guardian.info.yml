@@ -1,0 +1,13 @@
+name: 'Config Guardian'
+type: module
+description: 'Advanced configuration management with snapshots, rollback capabilities, and impact analysis for Drupal.'
+package: Configuration
+core_version_requirement: ^10.2 || ^11
+php: 8.1
+
+dependencies:
+  - drupal:config
+  - drupal:system (>=10.2)
+  - drupal:user
+
+configure: config_guardian.dashboard

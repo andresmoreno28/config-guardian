@@ -1,0 +1,228 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Config Guardian module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function config_guardian_schema() {
+  $schema = [];
+
+  $schema['config_guardian_snapshot'] = [
+    'description' => 'Stores configuration snapshots.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique snapshot ID.',
+      ],
+      'uuid' => [
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The UUID of the snapshot.',
+      ],
+      'name' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The name of the snapshot.',
+      ],
+      'description' => [
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Description of the snapshot.',
+      ],
+      'type' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'manual',
+        'description' => 'Type of snapshot: auto, manual, pre_import, pre_rollback.',
+      ],
+      'config_data' => [
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'description' => 'Compressed configuration data.',
+      ],
+      'config_hash' => [
+        'type' => 'varchar_ascii',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'SHA-256 hash of the configuration data for integrity.',
+      ],
+      'config_count' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Number of configuration items in snapshot.',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp when the snapshot was created.',
+      ],
+      'created_by' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'description' => 'The user ID who created the snapshot.',
+      ],
+      'parent_snapshot' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'description' => 'Parent snapshot ID for incremental snapshots.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'uuid' => ['uuid'],
+    ],
+    'indexes' => [
+      'type' => ['type'],
+      'created' => ['created'],
+      'created_by' => ['created_by'],
+    ],
+  ];
+
+  $schema['config_guardian_activity_log'] = [
+    'description' => 'Logs Config Guardian activities.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique log entry ID.',
+      ],
+      'action' => [
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'The action performed.',
+      ],
+      'details' => [
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Details about the action (JSON).',
+      ],
+      'config_names' => [
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'List of affected configuration names (JSON).',
+      ],
+      'snapshot_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'description' => 'Related snapshot ID.',
+      ],
+      'user_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'description' => 'The user ID who performed the action.',
+      ],
+      'ip_address' => [
+        'type' => 'varchar_ascii',
+        'length' => 45,
+        'description' => 'IP address of the user.',
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp when the action occurred.',
+      ],
+      'status' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'success',
+        'description' => 'Status of the action: success, error, warning.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'action' => ['action'],
+      'timestamp' => ['timestamp'],
+      'user_id' => ['user_id'],
+      'snapshot_id' => ['snapshot_id'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function config_guardian_install() {
+  // Set default configuration.
+  \Drupal::configFactory()->getEditable('config_guardian.settings')
+    ->set('auto_snapshot_enabled', TRUE)
+    ->set('auto_snapshot_before_import', TRUE)
+    ->set('auto_snapshot_interval', 'daily')
+    ->set('max_snapshots', 50)
+    ->set('retention_days', 90)
+    ->set('compression', 'gzip')
+    ->save();
+
+  \Drupal::messenger()->addStatus(t('Config Guardian has been installed. Visit the <a href=":url">dashboard</a> to get started.', [
+    ':url' => '/admin/config/development/config-guardian',
+  ]));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function config_guardian_uninstall() {
+  // Delete configuration.
+  \Drupal::configFactory()->getEditable('config_guardian.settings')->delete();
+
+  // Clean up any temporary files.
+  $temp_dir = 'temporary://config_guardian';
+  if (is_dir($temp_dir)) {
+    \Drupal::service('file_system')->deleteRecursive($temp_dir);
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function config_guardian_requirements($phase) {
+  $requirements = [];
+
+  if ($phase === 'runtime') {
+    // Check if there are any snapshots.
+    $count = \Drupal::database()->select('config_guardian_snapshot', 's')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+
+    $requirements['config_guardian_snapshots'] = [
+      'title' => t('Config Guardian Snapshots'),
+      'value' => t('@count snapshots', ['@count' => $count]),
+      'severity' => $count > 0 ? REQUIREMENT_OK : REQUIREMENT_INFO,
+      'description' => $count > 0
+        ? t('Configuration snapshots are being maintained.')
+        : t('No snapshots have been created yet. Consider creating one for backup purposes.'),
+    ];
+
+    // Check compression support.
+    $compression_available = function_exists('gzcompress');
+    $requirements['config_guardian_compression'] = [
+      'title' => t('Config Guardian Compression'),
+      'value' => $compression_available ? t('Available') : t('Not available'),
+      'severity' => $compression_available ? REQUIREMENT_OK : REQUIREMENT_WARNING,
+      'description' => $compression_available
+        ? t('Gzip compression is available for efficient snapshot storage.')
+        : t('Gzip compression is not available. Snapshots will be stored uncompressed.'),
+    ];
+  }
+
+  return $requirements;
+}

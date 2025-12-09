@@ -1,0 +1,32 @@
+config-guardian:
+  version: 1.x
+  css:
+    theme:
+      css/config-guardian.css: {}
+  js:
+    js/dashboard.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+
+admin:
+  version: 1.x
+  css:
+    theme:
+      css/config-guardian-admin.css: {}
+  dependencies:
+    - core/drupal
+
+config-sync:
+  version: 1.x
+  css:
+    theme:
+      css/config-sync.css: {}
+  js:
+    js/config-sync.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+    - config_guardian/config-guardian

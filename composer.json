@@ -1,0 +1,36 @@
+{
+  "name": "drupal/config_guardian",
+  "type": "drupal-module",
+  "description": "Enterprise-grade configuration management with snapshots, rollback capabilities, impact analysis, and comprehensive audit trails for Drupal.",
+  "keywords": [
+    "Drupal",
+    "configuration",
+    "management",
+    "snapshot",
+    "rollback",
+    "backup",
+    "restore",
+    "audit",
+    "impact analysis"
+  ],
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://www.drupal.org/project/config_guardian",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/config_guardian",
+    "source": "https://git.drupalcode.org/project/config_guardian"
+  },
+  "require": {
+    "php": ">=8.1",
+    "drupal/core": "^10.2 || ^11"
+  },
+  "require-dev": {
+    "drupal/coder": "^8.3",
+    "phpunit/phpunit": "^9.5 || ^10"
+  },
+  "extra": {
+    "drupal": {
+      "version": "1.0.x-dev",
+      "datestamp": ""
+    }
+  }
+}

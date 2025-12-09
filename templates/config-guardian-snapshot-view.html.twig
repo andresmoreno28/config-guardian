@@ -1,0 +1,84 @@
+{#
+/**
+ * @file
+ * Template for viewing a single snapshot.
+ *
+ * Available variables:
+ * - snapshot: The snapshot data
+ * - config_list: Grouped list of configurations
+ */
+#}
+
+<div class="config-guardian-snapshot-view">
+  <div class="cg-snapshot-header">
+    <h2>{{ snapshot.name }}</h2>
+    {% if snapshot.description %}
+      <p class="cg-snapshot-description">{{ snapshot.description }}</p>
+    {% endif %}
+  </div>
+
+  <div class="cg-snapshot-meta">
+    <div class="cg-meta-item">
+      <span class="cg-meta-label">{{ 'Type'|t }}:</span>
+      <span class="cg-type-badge cg-type-badge--{{ snapshot.type }}">
+        {{ snapshot.type|replace({'_': ' '})|capitalize }}
+      </span>
+    </div>
+    <div class="cg-meta-item">
+      <span class="cg-meta-label">{{ 'Created'|t }}:</span>
+      <span>{{ snapshot.created|date('Y-m-d H:i:s') }}</span>
+    </div>
+    <div class="cg-meta-item">
+      <span class="cg-meta-label">{{ 'Configurations'|t }}:</span>
+      <span>{{ snapshot.config_count }}</span>
+    </div>
+    <div class="cg-meta-item">
+      <span class="cg-meta-label">{{ 'Hash'|t }}:</span>
+      <code class="cg-hash">{{ snapshot.config_hash|slice(0, 16) }}...</code>
+    </div>
+  </div>
+
+  <div class="cg-snapshot-actions">
+    <a href="{{ path('config_guardian.snapshot.rollback', {'config_snapshot': snapshot.id}) }}" class="cg-btn cg-btn--primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="1 4 1 10 7 10"/>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+      </svg>
+      {{ 'Restore to this Snapshot'|t }}
+    </a>
+    <a href="{{ path('config_guardian.snapshot.export', {'config_snapshot': snapshot.id}) }}" class="cg-btn cg-btn--outline">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      {{ 'Export'|t }}
+    </a>
+    <a href="{{ path('config_guardian.snapshot.delete', {'config_snapshot': snapshot.id}) }}" class="cg-btn cg-btn--danger">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+      {{ 'Delete'|t }}
+    </a>
+  </div>
+
+  <div class="cg-config-list">
+    <h3>{{ 'Configurations in Snapshot'|t }}</h3>
+
+    {% for group, configs in config_list %}
+      <details class="cg-config-group" open>
+        <summary class="cg-config-group-header">
+          <strong>{{ group }}</strong> ({{ configs|length }})
+        </summary>
+        <ul class="cg-config-items">
+          {% for config in configs %}
+            <li class="cg-config-item">
+              <code>{{ config }}</code>
+            </li>
+          {% endfor %}
+        </ul>
+      </details>
+    {% endfor %}
+  </div>
+</div>

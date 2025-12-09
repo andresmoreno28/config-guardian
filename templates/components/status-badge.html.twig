@@ -1,0 +1,118 @@
+{#
+/**
+ * @file
+ * Status badge component for Config Guardian.
+ *
+ * Displays a colored badge indicating status of operations, sync states, etc.
+ *
+ * Available variables:
+ * - status: The status type ('synced', 'pending', 'conflict', 'error',
+ *           'success', 'warning', 'info', 'in_progress'). Required.
+ * - label: Custom label text. Optional, uses status name if not provided.
+ * - show_icon: Whether to show the status icon. Default: true
+ * - size: Size variant ('small', 'medium', 'large'). Default: 'medium'
+ * - pulsing: Add pulse animation for active states. Default: false
+ * - class: Additional CSS classes.
+ *
+ * Usage examples:
+ * @code
+ * {# Simple status badge #}
+ * {% include '@config_guardian/components/status-badge.html.twig' with {
+ *   status: 'synced'
+ * } %}
+ *
+ * {# In progress with animation #}
+ * {% include '@config_guardian/components/status-badge.html.twig' with {
+ *   status: 'in_progress',
+ *   pulsing: true
+ * } %}
+ * @endcode
+ */
+#}
+
+{% set status_type = status|default('info')|lower %}
+{% set display_label = label|default(status_type|replace({'_': ' '})|capitalize) %}
+{% set with_icon = show_icon|default(true) %}
+{% set size_class = size|default('medium') %}
+{% set is_pulsing = pulsing|default(false) %}
+{% set extra_class = class|default('') %}
+
+{# Status metadata #}
+{% set status_data = {
+  'synced': {
+    'color': 'success',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+    'aria': 'Configuration is synced'|t
+  },
+  'pending': {
+    'color': 'warning',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    'aria': 'Changes pending'|t
+  },
+  'conflict': {
+    'color': 'danger',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    'aria': 'Conflict detected'|t
+  },
+  'error': {
+    'color': 'danger',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+    'aria': 'Error occurred'|t
+  },
+  'success': {
+    'color': 'success',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+    'aria': 'Success'|t
+  },
+  'warning': {
+    'color': 'warning',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    'aria': 'Warning'|t
+  },
+  'info': {
+    'color': 'info',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+    'aria': 'Information'|t
+  },
+  'in_progress': {
+    'color': 'info',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+    'aria': 'In progress'|t
+  },
+  'new': {
+    'color': 'primary',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>',
+    'aria': 'New'|t
+  },
+  'modified': {
+    'color': 'warning',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+    'aria': 'Modified'|t
+  },
+  'deleted': {
+    'color': 'danger',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
+    'aria': 'Deleted'|t
+  }
+} %}
+
+{% set current_status = status_data[status_type]|default(status_data['info']) %}
+
+{% set classes = [
+  'cg-status-badge',
+  'cg-status-badge--' ~ current_status.color,
+  'cg-status-badge--' ~ size_class,
+  is_pulsing ? 'cg-status-badge--pulsing' : '',
+  extra_class
+]|filter(v => v)|join(' ') %}
+
+<span class="{{ classes }}"
+      role="status"
+      aria-label="{{ current_status.aria }}">
+  {% if with_icon %}
+    <span class="cg-status-badge__icon" aria-hidden="true">
+      {{ current_status.icon|raw }}
+    </span>
+  {% endif %}
+  <span class="cg-status-badge__label">{{ display_label }}</span>
+</span>

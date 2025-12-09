@@ -1,0 +1,186 @@
+# Dashboard
+config_guardian.dashboard:
+  path: '/admin/config/development/config-guardian'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\DashboardController::dashboard'
+    _title: 'Config Guardian'
+  requirements:
+    _permission: 'view config snapshots'
+
+# Snapshots list
+config_guardian.snapshots:
+  path: '/admin/config/development/config-guardian/snapshots'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\SnapshotController::list'
+    _title: 'Snapshots'
+  requirements:
+    _permission: 'view config snapshots'
+
+# Create snapshot form
+config_guardian.snapshot.add:
+  path: '/admin/config/development/config-guardian/snapshot/add'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\SnapshotCreateForm'
+    _title: 'Create Snapshot'
+  requirements:
+    _permission: 'create config snapshots'
+
+# View snapshot
+config_guardian.snapshot.view:
+  path: '/admin/config/development/config-guardian/snapshot/{config_snapshot}'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\SnapshotController::view'
+    _title_callback: '\Drupal\config_guardian\Controller\SnapshotController::viewTitle'
+  requirements:
+    _permission: 'view config snapshots'
+  options:
+    parameters:
+      config_snapshot:
+        type: entity:config_snapshot
+
+# Compare snapshots
+config_guardian.snapshot.compare:
+  path: '/admin/config/development/config-guardian/snapshot/compare/{snapshot1}/{snapshot2}'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\SnapshotController::compare'
+    _title: 'Compare Snapshots'
+  requirements:
+    _permission: 'view config snapshots'
+
+# Rollback form
+config_guardian.snapshot.rollback:
+  path: '/admin/config/development/config-guardian/snapshot/{config_snapshot}/rollback'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\RollbackForm'
+    _title: 'Rollback to Snapshot'
+  requirements:
+    _permission: 'restore config snapshots'
+  options:
+    parameters:
+      config_snapshot:
+        type: entity:config_snapshot
+
+# Delete snapshot
+config_guardian.snapshot.delete:
+  path: '/admin/config/development/config-guardian/snapshot/{config_snapshot}/delete'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\SnapshotDeleteForm'
+    _title: 'Delete Snapshot'
+  requirements:
+    _permission: 'delete config snapshots'
+  options:
+    parameters:
+      config_snapshot:
+        type: entity:config_snapshot
+
+# Export snapshot
+config_guardian.snapshot.export:
+  path: '/admin/config/development/config-guardian/snapshot/{config_snapshot}/export'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\SnapshotController::export'
+  requirements:
+    _permission: 'export config snapshots'
+  options:
+    parameters:
+      config_snapshot:
+        type: entity:config_snapshot
+
+# Import snapshot form
+config_guardian.snapshot.import:
+  path: '/admin/config/development/config-guardian/snapshot/import'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\SnapshotImportForm'
+    _title: 'Import Snapshot'
+  requirements:
+    _permission: 'import config snapshots'
+
+# Configuration Sync overview
+config_guardian.sync:
+  path: '/admin/config/development/config-guardian/sync'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\ConfigSyncController::overview'
+    _title: 'Configuration Sync'
+  requirements:
+    _permission: 'synchronize configuration'
+
+# Configuration Export form
+config_guardian.sync.export:
+  path: '/admin/config/development/config-guardian/sync/export'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\ConfigExportForm'
+    _title: 'Export Configuration'
+  requirements:
+    _permission: 'export configuration'
+
+# Configuration Import form
+config_guardian.sync.import:
+  path: '/admin/config/development/config-guardian/sync/import'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\ConfigImportForm'
+    _title: 'Import Configuration'
+  requirements:
+    _permission: 'import configuration'
+
+# Impact analysis
+config_guardian.analyze:
+  path: '/admin/config/development/config-guardian/analyze'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\AnalysisController::analyze'
+    _title: 'Impact Analysis'
+  requirements:
+    _permission: 'analyze config impact'
+
+# Activity log
+config_guardian.activity:
+  path: '/admin/config/development/config-guardian/activity'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\ActivityController::list'
+    _title: 'Activity Log'
+  requirements:
+    _permission: 'view config snapshots'
+
+# Settings form
+config_guardian.settings:
+  path: '/admin/config/development/config-guardian/settings'
+  defaults:
+    _form: '\Drupal\config_guardian\Form\SettingsForm'
+    _title: 'Config Guardian Settings'
+  requirements:
+    _permission: 'administer config guardian'
+
+# AJAX endpoints
+config_guardian.ajax.status:
+  path: '/admin/config/development/config-guardian/ajax/status'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\AjaxController::status'
+  requirements:
+    _permission: 'view config snapshots'
+  options:
+    _format: json
+
+config_guardian.ajax.dependency_graph:
+  path: '/admin/config/development/config-guardian/ajax/dependency-graph'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\AjaxController::dependencyGraph'
+  requirements:
+    _permission: 'analyze config impact'
+  options:
+    _format: json
+
+config_guardian.ajax.pending_changes:
+  path: '/admin/config/development/config-guardian/ajax/pending-changes'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\AjaxController::pendingChanges'
+  requirements:
+    _permission: 'view config snapshots'
+  options:
+    _format: json
+
+# Dependency graph iframe (standalone page)
+config_guardian.dependency_graph_iframe:
+  path: '/admin/config/development/config-guardian/dependency-graph-frame'
+  defaults:
+    _controller: '\Drupal\config_guardian\Controller\DependencyGraphController::iframe'
+    _title: 'Dependency Graph'
+  requirements:
+    _permission: 'analyze config impact'

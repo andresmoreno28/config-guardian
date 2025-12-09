@@ -1,0 +1,9 @@
+auto_snapshot_enabled: true
+auto_snapshot_before_import: true
+auto_snapshot_interval: daily
+max_snapshots: 50
+retention_days: 90
+compression: gzip
+exclude_patterns:
+  - 'system.cron'
+  - 'core.extension'

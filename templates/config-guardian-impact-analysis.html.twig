@@ -1,0 +1,197 @@
+{#
+/**
+ * @file
+ * Template for impact analysis page.
+ *
+ * Available variables:
+ * - risk_assessment: Overall risk assessment
+ * - changes: List of changes with analysis
+ * - conflicts: List of detected conflicts
+ * - dependency_graph: Graph data for visualization
+ * - recommendations: Dynamic recommendations array
+ */
+#}
+
+<div class="config-guardian-impact">
+  {# Risk Assessment Banner #}
+  <div class="cg-risk-banner cg-risk-banner--{{ risk_assessment.level }}">
+    <div class="cg-risk-banner__content">
+      <div class="cg-risk-banner__score">
+        <span class="cg-risk-score">{{ risk_assessment.score }}</span>
+        <span class="cg-risk-max">/100</span>
+      </div>
+      <div class="cg-risk-banner__info">
+        <h2>{{ 'Risk Level'|t }}:
+          {% if risk_assessment.level == 'low' %}
+            {{ 'Low'|t|upper }}
+          {% elseif risk_assessment.level == 'medium' %}
+            {{ 'Medium'|t|upper }}
+          {% elseif risk_assessment.level == 'high' %}
+            {{ 'High'|t|upper }}
+          {% elseif risk_assessment.level == 'critical' %}
+            {{ 'Critical'|t|upper }}
+          {% else %}
+            {{ risk_assessment.level|upper }}
+          {% endif %}
+        </h2>
+        <p>{{ risk_assessment.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  {# Recommendations - Visible and actionable #}
+  {% if recommendations %}
+    <div class="cg-recommendations-panel">
+      <div class="cg-recommendations-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="9" y1="18" x2="15" y2="18"/>
+          <line x1="10" y1="22" x2="14" y2="22"/>
+          <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+        </svg>
+        <h3>{{ 'Recommendations'|t }}</h3>
+      </div>
+      <div class="cg-recommendations-items">
+        {% for rec in recommendations %}
+          <div class="cg-recommendation cg-recommendation--{{ rec.type }}">
+            <div class="cg-recommendation__icon">
+              {% if rec.icon == 'shield' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              {% elseif rec.icon == 'alert' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {% elseif rec.icon == 'trash' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              {% elseif rec.icon == 'alert-triangle' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              {% elseif rec.icon == 'layers' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              {% elseif rec.icon == 'database' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              {% elseif rec.icon == 'package' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              {% elseif rec.icon == 'check' %}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              {% endif %}
+            </div>
+            <div class="cg-recommendation__content">
+              <span class="cg-recommendation__message">{{ rec.message }}</span>
+              {% if rec.action %}
+                <a href="{{ path(rec.action.url) }}" class="cg-btn cg-btn--sm cg-btn--primary">
+                  {{ rec.action.label }}
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {# Risk Factors #}
+  {% if risk_assessment.factors %}
+    <div class="cg-card cg-card--factors">
+      <div class="cg-card-header">
+        <h3>{{ 'Risk Factors'|t }}</h3>
+      </div>
+      <div class="cg-card-body">
+        <ul class="cg-factors-list">
+          {% for factor in risk_assessment.factors %}
+            <li class="cg-factor-item">{{ factor }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
+  {# Conflicts #}
+  {% if conflicts %}
+    <div class="cg-card cg-card--conflicts">
+      <div class="cg-card-header">
+        <h3>{{ 'Conflicts Detected'|t }}</h3>
+      </div>
+      <div class="cg-card-body">
+        <div class="messages messages--warning">
+          {{ 'The following conflicts must be resolved before importing:'|t }}
+        </div>
+        <ul class="cg-conflicts-list">
+          {% for conflict in conflicts %}
+            <li class="cg-conflict-item cg-conflict-item--{{ conflict.severity }}">
+              <code>{{ conflict.config }}</code>
+              <span class="cg-conflict-details">{{ conflict.details }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
+  {# Dependency Graph - Interactive iframe with independent zoom #}
+  <div class="cg-card cg-card--graph">
+    <div class="cg-card-header">
+      <h3>{{ 'Dependency Graph'|t }}</h3>
+      <span class="cg-graph-stats">
+        {{ '@nodes nodes'|t({'@nodes': dependency_graph.nodes|length}) }} &bull;
+        {{ '@links connections'|t({'@links': dependency_graph.links|length}) }}
+      </span>
+    </div>
+    <div class="cg-card-body cg-card-body--no-padding">
+      <iframe
+        src="{{ path('config_guardian.dependency_graph_iframe') }}"
+        class="cg-dependency-graph-iframe"
+        style="width: 100%; height: 550px; border: none; display: block;"
+        title="{{ 'Interactive Dependency Graph'|t }}"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </div>
+
+  {# Changes List #}
+  <div class="cg-card cg-card--changes">
+    <div class="cg-card-header">
+      <h3>{{ 'Affected Configurations'|t }}</h3>
+    </div>
+    <div class="cg-card-body">
+      {% if changes %}
+        <table class="cg-table">
+          <thead>
+            <tr>
+              <th>{{ 'Type'|t }}</th>
+              <th>{{ 'Configuration'|t }}</th>
+              <th>{{ 'Category'|t }}</th>
+              <th>{{ 'Dependents'|t }}</th>
+              <th>{{ 'Impact'|t }}</th>
+              <th>{{ 'Risk'|t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for change in changes %}
+              <tr class="cg-change-row cg-change-row--{{ change.risk }}">
+                <td>
+                  <span class="cg-change-type cg-change-type--{{ change.type }}">
+                    {% if change.type == 'create' %}NEW{% elseif change.type == 'update' %}MOD{% else %}DEL{% endif %}
+                  </span>
+                </td>
+                <td><code>{{ change.name }}</code></td>
+                <td>{{ change.config_type }}</td>
+                <td>{{ change.dependents }}</td>
+                <td>
+                  <div class="cg-impact-bar">
+                    <div class="cg-impact-fill" style="width: {{ change.impact_score }}%"></div>
+                  </div>
+                  <span class="cg-impact-value">{{ change.impact_score }}</span>
+                </td>
+                <td>
+                  <span class="cg-risk-badge cg-risk-badge--{{ change.risk }}">
+                    {{ change.risk|upper }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="cg-empty-state">{{ 'No pending configuration changes to analyze.'|t }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>

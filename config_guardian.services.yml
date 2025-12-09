@@ -1,0 +1,80 @@
+services:
+  config_guardian.snapshot_manager:
+    class: Drupal\config_guardian\Service\SnapshotManagerService
+    arguments:
+      - '@entity_type.manager'
+      - '@config.storage'
+      - '@config.storage.sync'
+      - '@config.factory'
+      - '@event_dispatcher'
+      - '@current_user'
+      - '@logger.factory'
+      - '@config_guardian.settings'
+
+  config_guardian.config_analyzer:
+    class: Drupal\config_guardian\Service\ConfigAnalyzerService
+    arguments:
+      - '@config.factory'
+      - '@config.storage'
+      - '@config.storage.sync'
+      - '@module_handler'
+      - '@config.manager'
+
+  config_guardian.rollback_engine:
+    class: Drupal\config_guardian\Service\RollbackEngineService
+    arguments:
+      - '@config_guardian.snapshot_manager'
+      - '@config_guardian.config_analyzer'
+      - '@config.storage'
+      - '@config.storage.sync'
+      - '@config.factory'
+      - '@config.manager'
+      - '@event_dispatcher'
+      - '@lock'
+      - '@config.typed'
+      - '@module_handler'
+      - '@module_installer'
+      - '@theme_handler'
+      - '@string_translation'
+      - '@logger.factory'
+      - '@config_guardian.settings'
+
+  config_guardian.activity_logger:
+    class: Drupal\config_guardian\Service\ActivityLoggerService
+    arguments:
+      - '@entity_type.manager'
+      - '@current_user'
+      - '@request_stack'
+
+  config_guardian.settings:
+    class: Drupal\config_guardian\Service\SettingsService
+    arguments:
+      - '@config.factory'
+
+  config_guardian.config_sync:
+    class: Drupal\config_guardian\Service\ConfigSyncService
+    arguments:
+      - '@config.storage'
+      - '@config.storage.sync'
+      - '@config.manager'
+      - '@config.typed'
+      - '@lock'
+      - '@event_dispatcher'
+      - '@module_handler'
+      - '@module_installer'
+      - '@theme_handler'
+      - '@extension.list.module'
+      - '@extension.list.theme'
+      - '@config_guardian.config_analyzer'
+      - '@config_guardian.activity_logger'
+      - '@config_guardian.snapshot_manager'
+
+  config_guardian.event_subscriber:
+    class: Drupal\config_guardian\EventSubscriber\ConfigEventSubscriber
+    arguments:
+      - '@config_guardian.snapshot_manager'
+      - '@config_guardian.activity_logger'
+      - '@config_guardian.settings'
+      - '@config.factory'
+    tags:
+      - { name: event_subscriber }

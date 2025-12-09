@@ -1,0 +1,207 @@
+{#
+/**
+ * @file
+ * Risk indicator component for Config Guardian.
+ *
+ * Displays a visual indicator of risk level with appropriate colors,
+ * icons, and accessibility features.
+ *
+ * Available variables:
+ * - level: The risk level ('low', 'medium', 'high', 'critical'). Required.
+ * - score: Numeric risk score (0-100). Optional, shows gauge if provided.
+ * - label: Custom label text. Optional, uses level name if not provided.
+ * - show_icon: Whether to show the risk icon. Default: true
+ * - show_tooltip: Whether to show tooltip on hover. Default: true
+ * - size: Size variant ('small', 'medium', 'large'). Default: 'medium'
+ * - variant: Display variant ('badge', 'pill', 'gauge', 'inline'). Default: 'badge'
+ * - class: Additional CSS classes.
+ *
+ * Usage examples:
+ * @code
+ * {# Simple badge #}
+ * {% include '@config_guardian/components/risk-indicator.html.twig' with {
+ *   level: 'high'
+ * } %}
+ *
+ * {# With score gauge #}
+ * {% include '@config_guardian/components/risk-indicator.html.twig' with {
+ *   level: 'critical',
+ *   score: 85,
+ *   variant: 'gauge'
+ * } %}
+ *
+ * {# Inline without icon #}
+ * {% include '@config_guardian/components/risk-indicator.html.twig' with {
+ *   level: 'low',
+ *   variant: 'inline',
+ *   show_icon: false
+ * } %}
+ * @endcode
+ */
+#}
+
+{% set risk_level = level|default('low')|lower %}
+{% set display_label = label|default(risk_level|capitalize) %}
+{% set with_icon = show_icon|default(true) %}
+{% set with_tooltip = show_tooltip|default(true) %}
+{% set size_class = size|default('medium') %}
+{% set variant_type = variant|default('badge') %}
+{% set risk_score = score|default(null) %}
+{% set extra_class = class|default('') %}
+
+{# Risk level metadata #}
+{% set risk_data = {
+  'low': {
+    'color': 'var(--cg-success)',
+    'bg': 'var(--cg-success-bg)',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+    'tooltip': 'Low risk - Safe to apply'|t,
+    'description': 'This change is safe and unlikely to cause issues.'|t
+  },
+  'medium': {
+    'color': 'var(--cg-warning)',
+    'bg': 'var(--cg-warning-bg)',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+    'tooltip': 'Medium risk - Review recommended'|t,
+    'description': 'Review this change before applying to ensure it meets your requirements.'|t
+  },
+  'high': {
+    'color': 'var(--cg-danger)',
+    'bg': 'var(--cg-danger-bg)',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    'tooltip': 'High risk - Careful review required'|t,
+    'description': 'This change may have significant impact. Carefully review before applying.'|t
+  },
+  'critical': {
+    'color': 'var(--cg-danger)',
+    'bg': 'var(--cg-danger-bg)',
+    'icon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+    'tooltip': 'Critical risk - May cause significant changes'|t,
+    'description': 'This is a critical change that could significantly alter your site. Proceed with extreme caution.'|t
+  }
+} %}
+
+{% set current_risk = risk_data[risk_level]|default(risk_data['low']) %}
+
+{% set classes = [
+  'cg-risk-indicator',
+  'cg-risk-indicator--' ~ risk_level,
+  'cg-risk-indicator--' ~ variant_type,
+  'cg-risk-indicator--' ~ size_class,
+  extra_class
+]|filter(v => v)|join(' ') %}
+
+{% if variant_type == 'gauge' and risk_score is not null %}
+  {# Circular gauge variant with score #}
+  {% set stroke_offset = 251.2 - (251.2 * risk_score / 100) %}
+
+  <div class="{{ classes }}"
+       role="meter"
+       aria-valuenow="{{ risk_score }}"
+       aria-valuemin="0"
+       aria-valuemax="100"
+       aria-label="{{ 'Risk score: @score out of 100'|t({'@score': risk_score}) }}"
+       {% if with_tooltip %}title="{{ current_risk.tooltip }}"{% endif %}>
+    <div class="cg-risk-indicator__gauge">
+      <svg viewBox="0 0 100 100" class="cg-risk-indicator__gauge-svg">
+        {# Background circle #}
+        <circle
+          class="cg-risk-indicator__gauge-bg"
+          cx="50" cy="50" r="40"
+          fill="none"
+          stroke="var(--cg-border)"
+          stroke-width="8"
+        />
+        {# Progress circle #}
+        <circle
+          class="cg-risk-indicator__gauge-progress"
+          cx="50" cy="50" r="40"
+          fill="none"
+          stroke="{{ current_risk.color }}"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-dasharray="251.2"
+          stroke-dashoffset="{{ stroke_offset }}"
+          transform="rotate(-90 50 50)"
+        />
+      </svg>
+      <div class="cg-risk-indicator__gauge-value">
+        <span class="cg-risk-indicator__score">{{ risk_score }}</span>
+        {% if with_icon %}
+          <span class="cg-risk-indicator__icon">
+            {{ current_risk.icon|raw }}
+          </span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="cg-risk-indicator__gauge-label">
+      {{ display_label }}
+    </div>
+  </div>
+
+{% elseif variant_type == 'pill' %}
+  {# Pill/tag variant #}
+  <span class="{{ classes }}"
+        role="status"
+        {% if with_tooltip %}title="{{ current_risk.tooltip }}"{% endif %}
+        aria-label="{{ 'Risk level: @level'|t({'@level': display_label}) }}">
+    {% if with_icon %}
+      <span class="cg-risk-indicator__icon" aria-hidden="true">
+        {{ current_risk.icon|raw }}
+      </span>
+    {% endif %}
+    <span class="cg-risk-indicator__label">{{ display_label }}</span>
+  </span>
+
+{% elseif variant_type == 'inline' %}
+  {# Inline text variant #}
+  <span class="{{ classes }}"
+        {% if with_tooltip %}title="{{ current_risk.tooltip }}"{% endif %}>
+    {% if with_icon %}
+      <span class="cg-risk-indicator__icon" aria-hidden="true">
+        {{ current_risk.icon|raw }}
+      </span>
+    {% endif %}
+    <span class="cg-risk-indicator__label">{{ display_label }}</span>
+  </span>
+
+{% elseif variant_type == 'detailed' %}
+  {# Detailed card variant with description #}
+  <div class="{{ classes }}"
+       role="status"
+       aria-label="{{ 'Risk assessment: @level'|t({'@level': display_label}) }}">
+    <div class="cg-risk-indicator__header">
+      {% if with_icon %}
+        <span class="cg-risk-indicator__icon" aria-hidden="true">
+          {{ current_risk.icon|raw }}
+        </span>
+      {% endif %}
+      <span class="cg-risk-indicator__label">{{ display_label }}</span>
+      {% if risk_score is not null %}
+        <span class="cg-risk-indicator__score-badge">{{ risk_score }}/100</span>
+      {% endif %}
+    </div>
+    <p class="cg-risk-indicator__description">
+      {{ current_risk.description }}
+    </p>
+    {% if risk_score is not null %}
+      <div class="cg-risk-indicator__bar">
+        <div class="cg-risk-indicator__bar-fill" style="width: {{ risk_score }}%;"></div>
+      </div>
+    {% endif %}
+  </div>
+
+{% else %}
+  {# Default badge variant #}
+  <span class="{{ classes }} cg-risk-badge"
+        role="status"
+        {% if with_tooltip %}title="{{ current_risk.tooltip }}"{% endif %}
+        aria-label="{{ 'Risk level: @level'|t({'@level': display_label}) }}">
+    {% if with_icon %}
+      <span class="cg-risk-indicator__icon" aria-hidden="true">
+        {{ current_risk.icon|raw }}
+      </span>
+    {% endif %}
+    <span class="cg-risk-indicator__label">{{ display_label }}</span>
+  </span>
+{% endif %}

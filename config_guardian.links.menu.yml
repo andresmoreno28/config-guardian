@@ -1,0 +1,6 @@
+config_guardian.dashboard:
+  title: 'Config Guardian'
+  description: 'Advanced configuration management with snapshots and rollback'
+  route_name: config_guardian.dashboard
+  parent: system.admin_config_development
+  weight: -5

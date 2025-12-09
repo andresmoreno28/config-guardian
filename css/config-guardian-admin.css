@@ -1,0 +1,254 @@
+/**
+ * @file
+ * Config Guardian admin styles.
+ */
+
+/* Import base styles */
+@import url('./config-guardian.css');
+
+/* Admin-specific overrides for Drupal admin theme */
+.config-guardian-dashboard,
+.config-guardian-snapshot-view,
+.config-guardian-compare,
+.config-guardian-impact,
+.config-guardian-activity {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Fix table styles in admin theme */
+.cg-table {
+  margin: 0;
+}
+
+.cg-table th,
+.cg-table td {
+  padding: 0.75rem 1rem;
+}
+
+/* Button adjustments for admin theme */
+.cg-btn {
+  line-height: 1.4;
+}
+
+/* Unified button system for Config Guardian */
+.config-guardian-dashboard .button,
+.config-guardian-snapshot-view .button,
+.config-guardian-compare .button,
+.config-guardian-impact .button,
+.config-guardian-activity .button,
+.config-guardian-sync .button,
+.cg-status-banner__actions .button,
+.cg-recommendations-actions .button,
+.cg-sync-card .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+/* Primary button style */
+.config-guardian-dashboard .button--primary,
+.config-guardian-snapshot-view .button--primary,
+.config-guardian-compare .button--primary,
+.config-guardian-impact .button--primary,
+.config-guardian-activity .button--primary,
+.config-guardian-sync .button--primary,
+.cg-status-banner__actions .button--primary,
+.cg-recommendations-actions .button--primary,
+.cg-sync-card .button--primary {
+  background: linear-gradient(180deg, #0085ba 0%, #0073aa 100%);
+  color: #fff;
+  border: 1px solid #006799;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.config-guardian-dashboard .button--primary:hover,
+.config-guardian-snapshot-view .button--primary:hover,
+.config-guardian-compare .button--primary:hover,
+.config-guardian-impact .button--primary:hover,
+.config-guardian-activity .button--primary:hover,
+.config-guardian-sync .button--primary:hover,
+.cg-status-banner__actions .button--primary:hover,
+.cg-recommendations-actions .button--primary:hover,
+.cg-sync-card .button--primary:hover {
+  background: linear-gradient(180deg, #0073aa 0%, #005d8c 100%);
+  border-color: #00527a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Secondary/outline button style */
+.config-guardian-dashboard .button--action:not(.button--primary):not(.button--danger),
+.config-guardian-snapshot-view .button--action:not(.button--primary):not(.button--danger),
+.config-guardian-compare .button--action:not(.button--primary):not(.button--danger),
+.config-guardian-impact .button--action:not(.button--primary):not(.button--danger),
+.config-guardian-activity .button--action:not(.button--primary):not(.button--danger),
+.config-guardian-sync .button--action:not(.button--primary):not(.button--danger),
+.cg-status-banner__actions .button--action:not(.button--primary):not(.button--danger),
+.cg-recommendations-actions .button--action:not(.button--primary):not(.button--danger),
+.cg-sync-card .button--action:not(.button--primary):not(.button--danger) {
+  background: #f7f7f7;
+  color: #0073aa;
+  border: 1px solid #ddd;
+}
+
+.config-guardian-dashboard .button--action:not(.button--primary):not(.button--danger):hover,
+.config-guardian-snapshot-view .button--action:not(.button--primary):not(.button--danger):hover,
+.config-guardian-compare .button--action:not(.button--primary):not(.button--danger):hover,
+.config-guardian-impact .button--action:not(.button--primary):not(.button--danger):hover,
+.config-guardian-activity .button--action:not(.button--primary):not(.button--danger):hover,
+.config-guardian-sync .button--action:not(.button--primary):not(.button--danger):hover,
+.cg-status-banner__actions .button--action:not(.button--primary):not(.button--danger):hover,
+.cg-recommendations-actions .button--action:not(.button--primary):not(.button--danger):hover,
+.cg-sync-card .button--action:not(.button--primary):not(.button--danger):hover {
+  background: #e9e9e9;
+  border-color: #ccc;
+}
+
+/* Danger button style */
+.config-guardian-dashboard .button--danger,
+.config-guardian-snapshot-view .button--danger,
+.config-guardian-compare .button--danger,
+.config-guardian-impact .button--danger,
+.config-guardian-activity .button--danger,
+.config-guardian-sync .button--danger {
+  background: linear-gradient(180deg, #dc3545 0%, #c82333 100%);
+  color: #fff;
+  border: 1px solid #bd2130;
+}
+
+.config-guardian-dashboard .button--danger:hover,
+.config-guardian-snapshot-view .button--danger:hover,
+.config-guardian-compare .button--danger:hover,
+.config-guardian-impact .button--danger:hover,
+.config-guardian-activity .button--danger:hover,
+.config-guardian-sync .button--danger:hover {
+  background: linear-gradient(180deg, #c82333 0%, #a71d2a 100%);
+  border-color: #a71d2a;
+}
+
+/* Form action buttons styling */
+.form-actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.form-actions .button--primary {
+  background: linear-gradient(180deg, #0085ba 0%, #0073aa 100%);
+  color: #fff;
+  border: 1px solid #006799;
+}
+
+.form-actions .button--primary:hover {
+  background: linear-gradient(180deg, #0073aa 0%, #005d8c 100%);
+  border-color: #00527a;
+}
+
+.form-actions .button--action:not(.button--primary) {
+  background: #f7f7f7;
+  color: #0073aa;
+  border: 1px solid #ddd;
+}
+
+.form-actions .button--action:not(.button--primary):hover {
+  background: #e9e9e9;
+  border-color: #ccc;
+}
+
+/* Details element styling */
+details.cg-config-group {
+  background: transparent;
+}
+
+details.cg-config-group summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+details.cg-config-group[open] summary {
+  border-bottom: 1px solid var(--cg-border);
+}
+
+/* Snapshot view header */
+.config-guardian-snapshot-view .cg-snapshot-header {
+  margin-bottom: 1.5rem;
+}
+
+.config-guardian-snapshot-view .cg-snapshot-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--cg-text);
+}
+
+.config-guardian-snapshot-view .cg-snapshot-description {
+  margin: 0;
+  color: var(--cg-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Type badge inside meta */
+.cg-snapshot-meta .cg-type-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+}
+
+/* Config list section */
+.cg-config-list h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--cg-text);
+}
+
+/* Graph header stats */
+.cg-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cg-graph-stats {
+  font-size: 13px;
+  color: #666;
+  font-weight: normal;
+}
+
+/* No padding for iframe container */
+.cg-card-body--no-padding {
+  padding: 0 !important;
+}
+
+/* Iframe styling */
+.cg-dependency-graph-iframe {
+  background: #f8f9fa;
+}
+
+/* Hide the "+" icon from Claro theme on Config Guardian buttons */
+[id^="config-guardian"] .form-actions .button::before,
+[id^="config-guardian"] .form-actions .button .icon,
+.config-guardian-dashboard .button::before,
+.config-guardian-snapshot-view .button::before,
+.config-guardian-compare .button::before,
+.config-guardian-impact .button::before,
+.config-guardian-activity .button::before,
+.config-guardian-sync .button::before {
+  display: none !important;
+  content: none !important;
+}

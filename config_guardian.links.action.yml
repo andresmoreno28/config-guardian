@@ -1,0 +1,5 @@
+config_guardian.snapshot.add:
+  title: 'Create Snapshot'
+  route_name: config_guardian.snapshot.add
+  appears_on:
+    - config_guardian.dashboard

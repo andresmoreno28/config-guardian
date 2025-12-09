@@ -1,0 +1,50 @@
+administer config guardian:
+  title: 'Administer Config Guardian'
+  description: 'Full access to all Config Guardian functionality'
+  restrict access: true
+
+create config snapshots:
+  title: 'Create configuration snapshots'
+  description: 'Allows users to create snapshots of the current configuration'
+
+restore config snapshots:
+  title: 'Restore configuration snapshots'
+  description: 'Allows users to restore configuration from snapshots'
+  restrict access: true
+
+view config snapshots:
+  title: 'View configuration snapshots'
+  description: 'Allows users to view existing snapshots'
+
+delete config snapshots:
+  title: 'Delete configuration snapshots'
+  description: 'Allows users to delete configuration snapshots'
+  restrict access: true
+
+analyze config impact:
+  title: 'Analyze configuration impact'
+  description: 'Allows users to analyze the impact of configuration changes'
+
+export config snapshots:
+  title: 'Export configuration snapshots'
+  description: 'Allows users to export snapshots to files'
+
+import config snapshots:
+  title: 'Import configuration snapshots'
+  description: 'Allows users to import snapshots from files'
+  restrict access: true
+
+synchronize configuration:
+  title: 'Synchronize configuration'
+  description: 'Access to configuration import and export pages'
+  restrict access: true
+
+export configuration:
+  title: 'Export configuration'
+  description: 'Export active configuration to sync storage'
+  restrict access: true
+
+import configuration:
+  title: 'Import configuration'
+  description: 'Import configuration from sync storage'
+  restrict access: true

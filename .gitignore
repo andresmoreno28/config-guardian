@@ -1,0 +1,40 @@
+# Drupal module .gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor files
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# Dependencies (should be installed via composer)
+/vendor/
+/node_modules/
+
+# Build artifacts
+*.log
+*.cache
+
+# Backup files
+*.bak
+*.orig
+
+# Translation files (upload to localize.drupal.org instead)
+translations/
+
+# Development environment
+.ddev/
+.lando.yml
+
+# Test coverage
+coverage/
+.phpunit.result.cache
+
+# Local development files
+*.local.yml
+*.local.php

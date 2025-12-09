@@ -1,0 +1,148 @@
+{#
+/**
+ * @file
+ * Template for the Config Guardian sync overview page.
+ *
+ * Available variables:
+ * - export_url: URL for export page.
+ * - import_url: URL for import page.
+ * - status_items: Array of status items with type, icon, label, value, details, status.
+ * - total_active_configs: Total number of active configurations.
+ */
+#}
+
+{% set export_status = null %}
+{% set import_status = null %}
+{% for item in status_items %}
+  {% if item.type == 'export' %}
+    {% set export_status = item %}
+  {% elseif item.type == 'import' %}
+    {% set import_status = item %}
+  {% endif %}
+{% endfor %}
+
+<div class="config-guardian-sync">
+  {# Header #}
+  <div class="cg-sync-header">
+    <h2>{{ 'Configuration Synchronization'|t }}</h2>
+    <p class="cg-sync-description">
+      {{ 'Import configuration from or export configuration to the sync directory. Similar to using drush config:import (cim) or drush config:export (cex).'|t }}
+    </p>
+  </div>
+
+  {# Sync Actions with Status Banners #}
+  <div class="cg-sync-actions">
+    {# Export Column #}
+    <div class="cg-sync-column">
+      {# Export Status Banner #}
+      {% if export_status %}
+        <div class="cg-status-card cg-status-card--{{ export_status.status }}">
+          <div class="cg-status-card__icon">
+            {% if export_status.icon == 'check' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {% elseif export_status.icon == 'upload' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            {% endif %}
+          </div>
+          <div class="cg-status-card__content">
+            <div class="cg-status-card__label">{{ export_status.label }}</div>
+            <div class="cg-status-card__value">{{ export_status.value }}</div>
+            <div class="cg-status-card__details">{{ export_status.details }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {# Export Card #}
+      <div class="cg-sync-card cg-sync-card--export">
+        <div class="cg-sync-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+        </div>
+        <h3>{{ 'Export Configuration'|t }}</h3>
+        <p>{{ 'Write active configuration to the sync directory. Use this to save your current configuration state.'|t }}</p>
+        <p class="cg-sync-card__stats">
+          <strong>{{ total_active_configs }}</strong> {{ 'configurations'|t }}
+        </p>
+        <a href="{{ export_url }}" class="cg-btn cg-btn--primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          {{ 'Export'|t }}
+        </a>
+      </div>
+    </div>
+
+    {# Import Column #}
+    <div class="cg-sync-column">
+      {# Import Status Banner #}
+      {% if import_status %}
+        <div class="cg-status-card cg-status-card--{{ import_status.status }}">
+          <div class="cg-status-card__icon">
+            {% if import_status.icon == 'check' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {% elseif import_status.icon == 'download' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+            {% endif %}
+          </div>
+          <div class="cg-status-card__content">
+            <div class="cg-status-card__label">{{ import_status.label }}</div>
+            <div class="cg-status-card__value">{{ import_status.value }}</div>
+            <div class="cg-status-card__details">{{ import_status.details }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {# Import Card #}
+      <div class="cg-sync-card cg-sync-card--import">
+        <div class="cg-sync-card__icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <h3>{{ 'Import Configuration'|t }}</h3>
+        <p>{{ 'Import configuration from the sync directory. Changes will be previewed before applying.'|t }}</p>
+        <p class="cg-sync-card__stats">
+          {{ 'Preview changes before import'|t }}
+        </p>
+        <a href="{{ import_url }}" class="cg-btn cg-btn--primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          {{ 'Import'|t }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {# Help Text #}
+  <div class="cg-sync-help">
+    <h4>{{ 'About Configuration Synchronization'|t }}</h4>
+    <ul>
+      <li>{{ '<strong>Export</strong> saves your current active configuration to files in the sync directory (typically <code>config/sync</code>).'|t }}</li>
+      <li>{{ '<strong>Import</strong> applies configuration from the sync directory to your active configuration.'|t }}</li>
+      <li>{{ 'Before importing, you can create a backup snapshot to easily rollback if needed.'|t }}</li>
+      <li>{{ 'Import previews show risk assessment and potential conflicts before applying changes.'|t }}</li>
+    </ul>
+  </div>
+</div>

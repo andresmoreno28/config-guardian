@@ -1,0 +1,9 @@
+services:
+  config_guardian.commands:
+    class: Drupal\config_guardian\Commands\ConfigGuardianCommands
+    arguments:
+      - '@config_guardian.snapshot_manager'
+      - '@config_guardian.config_analyzer'
+      - '@config_guardian.rollback_engine'
+    tags:
+      - { name: drush.command }

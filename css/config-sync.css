@@ -1,0 +1,450 @@
+/**
+ * @file
+ * Config Guardian - Configuration Sync styles.
+ */
+
+/* Sync Page Layout */
+.config-guardian-sync {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Header */
+.cg-sync-header {
+  margin-bottom: 2rem;
+}
+
+.cg-sync-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: var(--cg-text);
+}
+
+.cg-sync-description {
+  margin: 0;
+  color: var(--cg-text-muted);
+  font-size: 0.95rem;
+}
+
+.cg-sync-description code {
+  background: var(--cg-bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--cg-radius-sm);
+  font-size: 0.85em;
+}
+
+/* Status Cards Row */
+.cg-sync-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.cg-status-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: var(--cg-radius);
+  border: 2px solid var(--cg-border);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cg-status-card--success {
+  border-color: var(--cg-success);
+  background: linear-gradient(135deg, #d4edda 0%, #ffffff 100%);
+}
+
+.cg-status-card--info {
+  border-color: var(--cg-info);
+  background: linear-gradient(135deg, #d1ecf1 0%, #ffffff 100%);
+}
+
+.cg-status-card--warning {
+  border-color: var(--cg-warning);
+  background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+}
+
+.cg-status-card__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--cg-shadow);
+}
+
+.cg-status-card--success .cg-status-card__icon {
+  color: var(--cg-success);
+}
+
+.cg-status-card--info .cg-status-card__icon {
+  color: var(--cg-info);
+}
+
+.cg-status-card--warning .cg-status-card__icon {
+  color: #856404;
+}
+
+.cg-status-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cg-status-card__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--cg-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.cg-status-card__value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--cg-text);
+  margin-bottom: 0.25rem;
+}
+
+.cg-status-card__details {
+  font-size: 0.8rem;
+  color: var(--cg-text-muted);
+}
+
+/* Action Cards Grid */
+.cg-sync-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cg-sync-card {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--cg-radius);
+  border: 1px solid var(--cg-border);
+  text-align: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.cg-sync-card:hover {
+  box-shadow: var(--cg-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.cg-sync-card__icon {
+  margin-bottom: 1rem;
+  color: var(--cg-primary);
+}
+
+.cg-sync-card h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.25rem;
+  color: var(--cg-text);
+}
+
+.cg-sync-card p {
+  margin: 0 0 1rem 0;
+  color: var(--cg-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cg-sync-card__stats {
+  font-size: 0.85rem;
+  color: var(--cg-text-muted);
+  margin-bottom: 1.25rem !important;
+}
+
+.cg-sync-card__stats strong {
+  font-size: 1.5rem;
+  color: var(--cg-primary);
+}
+
+.cg-sync-card .cg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.cg-sync-card .cg-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Help Section */
+.cg-sync-help {
+  background: var(--cg-bg);
+  padding: 1.5rem;
+  border-radius: var(--cg-radius);
+  margin-top: 2rem;
+}
+
+.cg-sync-help h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: var(--cg-text);
+}
+
+.cg-sync-help ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.cg-sync-help li {
+  margin-bottom: 0.5rem;
+  color: var(--cg-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cg-sync-help li strong {
+  color: var(--cg-text);
+}
+
+.cg-sync-help code {
+  background: white;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+/* Export/Import Preview Styles */
+.cg-export-summary,
+.cg-import-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cg-import-summary {
+  justify-content: center;
+}
+
+.cg-import-summary .cg-summary-item {
+  min-width: 120px;
+  padding: 1.5rem 2rem;
+}
+
+.cg-import-summary .cg-summary-value {
+  font-size: 2.5rem;
+}
+
+/* Changes Preview */
+.cg-changes-preview {
+  margin-bottom: 1.5rem;
+}
+
+.cg-changes-section {
+  margin-bottom: 0.75rem;
+  border-radius: var(--cg-radius-sm);
+  overflow: hidden;
+}
+
+.cg-changes-section--create {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.cg-changes-section--update {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+}
+
+.cg-changes-section--delete {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+.cg-changes-section summary {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cg-changes-section .item-list {
+  padding: 0.5rem 1rem 1rem;
+}
+
+.cg-changes-section .item-list ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.cg-changes-section .item-list li {
+  padding: 0.25rem 0;
+}
+
+/* Config Search */
+.cg-config-search {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.cg-config-search:focus {
+  outline: none;
+  border-color: var(--cg-primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+/* Config Groups */
+.cg-config-groups {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cg-config-group {
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--cg-border);
+  border-radius: var(--cg-radius-sm);
+}
+
+.cg-config-group summary {
+  padding: 0.6rem 1rem;
+  background: var(--cg-bg);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.cg-config-group summary:hover {
+  background: var(--cg-bg-dark);
+}
+
+.cg-config-list {
+  padding: 0.5rem 1rem;
+  margin: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cg-config-list li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--cg-border);
+  font-size: 0.85rem;
+}
+
+.cg-config-list li:last-child {
+  border-bottom: none;
+}
+
+/* Config Type Badge */
+.cg-config-type {
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  margin-left: 0.5rem;
+}
+
+/* Dependents Info */
+.cg-dependents {
+  font-size: 0.75rem;
+  color: var(--cg-text-muted);
+  margin-left: 0.5rem;
+}
+
+.cg-dependents--warning {
+  color: var(--cg-danger);
+  font-weight: 600;
+}
+
+/* Conflicts */
+.cg-conflicts {
+  margin-bottom: 1.5rem;
+}
+
+.cg-conflict-severity {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cg-conflict-severity--error {
+  color: var(--cg-danger);
+}
+
+.cg-conflict-severity--warning {
+  color: #856404;
+}
+
+/* Risk Factors List */
+.cg-risk-factors {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.cg-risk-factors li {
+  margin-bottom: 0.25rem;
+}
+
+/* All Configs Section */
+.cg-all-configs {
+  margin-top: 1rem;
+}
+
+/* Batch Progress Enhancements */
+.batch-processing .progress__bar {
+  background: var(--cg-primary);
+  transition: width 0.3s ease;
+}
+
+.batch-processing .progress__percentage {
+  font-weight: 600;
+}
+
+/* Processing message styling */
+.batch-processing .progress__description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.batch-processing .progress__description code {
+  background: var(--cg-bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--cg-radius-sm);
+  font-size: 0.85em;
+  color: var(--cg-primary);
+}
+
+.batch-processing .progress__description strong {
+  color: var(--cg-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cg-sync-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .cg-sync-status {
+    grid-template-columns: 1fr;
+  }
+
+  .cg-import-summary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cg-import-summary .cg-summary-item {
+    min-width: auto;
+  }
+
+  .cg-sync-card {
+    padding: 1.5rem;
+  }
+}

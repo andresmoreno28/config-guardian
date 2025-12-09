@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Config Guardian module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function config_guardian_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.config_guardian':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Config Guardian provides advanced configuration management capabilities including snapshots, rollback, and impact analysis.') . '</p>';
+      $output .= '<h3>' . t('Features') . '</h3>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<strong>Snapshots:</strong> Create point-in-time backups of your configuration.') . '</li>';
+      $output .= '<li>' . t('<strong>Rollback:</strong> Restore configuration to any previous snapshot.') . '</li>';
+      $output .= '<li>' . t('<strong>Impact Analysis:</strong> Analyze dependencies and risks before making changes.') . '</li>';
+      $output .= '<li>' . t('<strong>Activity Log:</strong> Track all configuration changes and actions.') . '</li>';
+      $output .= '</ul>';
+      return $output;
+
+    case 'config_guardian.dashboard':
+      return '<p>' . t('Welcome to Config Guardian. Monitor your configuration status and manage snapshots from this dashboard.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function config_guardian_theme() {
+  return [
+    'config_guardian_dashboard' => [
+      'variables' => [
+        'sync_status' => NULL,
+        'pending_changes' => [],
+        'stats' => [],
+        'recent_snapshots' => [],
+        'recent_activity' => [],
+      ],
+      'template' => 'config-guardian-dashboard',
+    ],
+    'config_guardian_snapshot_view' => [
+      'variables' => [
+        'snapshot' => NULL,
+        'config_list' => [],
+      ],
+      'template' => 'config-guardian-snapshot-view',
+    ],
+    'config_guardian_compare' => [
+      'variables' => [
+        'snapshot1' => NULL,
+        'snapshot2' => NULL,
+        'diff' => [],
+      ],
+      'template' => 'config-guardian-compare',
+    ],
+    'config_guardian_impact_analysis' => [
+      'variables' => [
+        'risk_assessment' => NULL,
+        'changes' => [],
+        'conflicts' => [],
+        'dependency_graph' => [],
+        'recommendations' => [],
+      ],
+      'template' => 'config-guardian-impact-analysis',
+    ],
+    'config_guardian_activity_log' => [
+      'variables' => [
+        'activities' => [],
+        'pager' => NULL,
+      ],
+      'template' => 'config-guardian-activity-log',
+    ],
+    'config_guardian_status_badge' => [
+      'variables' => [
+        'status' => 'synced',
+        'message' => '',
+        'count' => 0,
+      ],
+      'template' => 'config-guardian-status-badge',
+    ],
+    'config_guardian_risk_badge' => [
+      'variables' => [
+        'level' => 'low',
+        'score' => 0,
+      ],
+      'template' => 'config-guardian-risk-badge',
+    ],
+    'config_guardian_sync' => [
+      'variables' => [
+        'export_url' => NULL,
+        'import_url' => NULL,
+        'status_items' => [],
+        'total_active_configs' => 0,
+      ],
+      'template' => 'config-guardian-sync',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_cron().
+ */
+function config_guardian_cron() {
+  $settings = \Drupal::service('config_guardian.settings');
+
+  if (!$settings->isAutoSnapshotEnabled()) {
+    return;
+  }
+
+  $interval = $settings->getAutoSnapshotInterval();
+  $last_run = \Drupal::state()->get('config_guardian.last_auto_snapshot', 0);
+  $current_time = \Drupal::time()->getRequestTime();
+
+  $should_run = FALSE;
+  switch ($interval) {
+    case 'hourly':
+      $should_run = ($current_time - $last_run) >= 3600;
+      break;
+
+    case 'daily':
+      $should_run = ($current_time - $last_run) >= 86400;
+      break;
+
+    case 'weekly':
+      $should_run = ($current_time - $last_run) >= 604800;
+      break;
+  }
+
+  if ($should_run) {
+    try {
+      $snapshot_manager = \Drupal::service('config_guardian.snapshot_manager');
+      $snapshot_manager->createSnapshot(
+        'Auto snapshot - ' . date('Y-m-d H:i:s', $current_time),
+        'auto'
+      );
+      \Drupal::state()->set('config_guardian.last_auto_snapshot', $current_time);
+      \Drupal::logger('config_guardian')->info('Automatic snapshot created during cron run.');
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('config_guardian')->error('Failed to create automatic snapshot: @message', [
+        '@message' => $e->getMessage(),
+      ]);
+    }
+  }
+
+  // Clean up old snapshots based on retention policy.
+  $retention_days = $settings->getRetentionDays();
+  $max_snapshots = $settings->getMaxSnapshots();
+
+  if ($retention_days > 0) {
+    $cutoff = $current_time - ($retention_days * 86400);
+    $snapshot_manager = \Drupal::service('config_guardian.snapshot_manager');
+    $snapshot_manager->cleanupOldSnapshots($cutoff, $max_snapshots);
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function config_guardian_page_attachments(array &$attachments) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+
+  if ($route_name && str_starts_with($route_name, 'config_guardian.')) {
+    $attachments['#attached']['library'][] = 'config_guardian/config-guardian';
+
+    // Add settings for JavaScript.
+    $attachments['#attached']['drupalSettings']['configGuardian'] = [
+      'statusUrl' => '/admin/config/development/config-guardian/ajax/status',
+      'dependencyGraphUrl' => '/admin/config/development/config-guardian/ajax/dependency-graph',
+      'pendingChangesUrl' => '/admin/config/development/config-guardian/ajax/pending-changes',
+      'autoRefresh' => TRUE,
+      'refreshInterval' => 30000,
+    ];
+  }
+}

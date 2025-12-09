@@ -1,0 +1,384 @@
+{#
+/**
+ * @file
+ * Template for Config Guardian dashboard.
+ *
+ * Available variables:
+ * - sync_status: Current sync status (synced, needs_export, needs_import, diverged, conflict)
+ * - env_status: Comprehensive environment status with bidirectional analysis
+ * - notable_changes: List of modified configurations with risk analysis
+ * - stats: Dashboard statistics
+ * - recent_snapshots: List of recent snapshots
+ * - recent_activity: List of recent activity log entries
+ */
+#}
+
+<div class="config-guardian-dashboard">
+  {# Status Banner #}
+  <div class="cg-status-banner cg-status-banner--{{ sync_status }}">
+    <div class="cg-status-banner__icon">
+      {% if sync_status == 'synced' %}
+        <span class="cg-icon cg-icon--check">&#10003;</span>
+      {% elseif sync_status == 'needs_export' %}
+        <span class="cg-icon cg-icon--export">&#8593;</span>
+      {% elseif sync_status == 'needs_import' %}
+        <span class="cg-icon cg-icon--import">&#8595;</span>
+      {% elseif sync_status == 'diverged' %}
+        <span class="cg-icon cg-icon--warning">&#9888;</span>
+      {% else %}
+        <span class="cg-icon cg-icon--error">&#10005;</span>
+      {% endif %}
+    </div>
+    <div class="cg-status-banner__content">
+      <h2 class="cg-status-banner__title">
+        {% if sync_status == 'synced' %}
+          {{ 'Configuration Synchronized'|t }}
+        {% elseif sync_status == 'needs_export' %}
+          {{ 'Export Recommended'|t }}
+        {% elseif sync_status == 'needs_import' %}
+          {{ 'Import Recommended'|t }}
+        {% elseif sync_status == 'diverged' %}
+          {{ 'Configuration Diverged'|t }}
+        {% else %}
+          {{ 'Conflicts Detected'|t }}
+        {% endif %}
+      </h2>
+      <p class="cg-status-banner__subtitle">
+        {% if sync_status == 'synced' %}
+          {{ 'Active configuration matches sync storage.'|t }}
+        {% elseif sync_status == 'needs_export' %}
+          {{ 'Active config has changes not in sync directory.'|t }}
+        {% elseif sync_status == 'needs_import' %}
+          {{ 'Sync directory has changes to apply.'|t }}
+        {% elseif sync_status == 'diverged' %}
+          {{ 'Both storages have different changes. Review before syncing.'|t }}
+        {% else %}
+          {{ 'Review and resolve conflicts before importing.'|t }}
+        {% endif %}
+      </p>
+    </div>
+    <div class="cg-status-banner__actions">
+      <a href="{{ path('config_guardian.analyze') }}" class="cg-btn cg-btn--outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        {{ 'Analyze Impact'|t }}
+      </a>
+      <a href="{{ path('config_guardian.snapshot.add') }}" class="cg-btn cg-btn--primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        {{ 'Create Snapshot'|t }}
+      </a>
+    </div>
+  </div>
+
+  {# Warnings Section #}
+  {% if env_status.warnings %}
+    <div class="cg-warnings">
+      {% for warning in env_status.warnings %}
+        <div class="cg-warning cg-warning--{{ warning.type }}">
+          {% if warning.type == 'danger' %}
+            <span class="cg-warning__icon">&#9888;</span>
+          {% elseif warning.type == 'warning' %}
+            <span class="cg-warning__icon">&#9888;</span>
+          {% else %}
+            <span class="cg-warning__icon">&#9432;</span>
+          {% endif %}
+          <span class="cg-warning__message">{{ warning.message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# Stats Grid - Now shows both storages #}
+  <div class="cg-stats-grid">
+    <div class="cg-stat-card">
+      <div class="cg-stat-value cg-stat-value--primary">{{ stats.active_count }}</div>
+      <div class="cg-stat-label">{{ 'Active Configs'|t }}</div>
+    </div>
+    <div class="cg-stat-card">
+      <div class="cg-stat-value cg-stat-value--info">{{ stats.sync_count }}</div>
+      <div class="cg-stat-label">{{ 'Sync Files'|t }}</div>
+    </div>
+    <div class="cg-stat-card">
+      <div class="cg-stat-value cg-stat-value--warning">{{ stats.modified_count }}</div>
+      <div class="cg-stat-label">{{ 'Modified'|t }}</div>
+    </div>
+    <div class="cg-stat-card">
+      <div class="cg-stat-value cg-stat-value--success">{{ stats.total_snapshots }}</div>
+      <div class="cg-stat-label">{{ 'Snapshots'|t }}</div>
+    </div>
+  </div>
+
+  {# Sync Comparison - Shows both directions #}
+  {% if sync_status != 'synced' %}
+  <div class="cg-sync-comparison">
+    <h3 class="cg-section-title">{{ 'Sync Comparison'|t }}</h3>
+    <div class="cg-comparison-grid">
+      {# Import Direction #}
+      <div class="cg-comparison-card {% if env_status.recommendation == 'import' %}cg-comparison-card--recommended{% endif %}">
+        <div class="cg-comparison-header">
+          <h4>
+            <span class="cg-direction-icon">&#8595;</span>
+            {{ 'Import'|t }} <small>(sync &rarr; active)</small>
+          </h4>
+          {% if env_status.recommendation == 'import' %}
+            <span class="cg-badge cg-badge--success">{{ 'Recommended'|t }}</span>
+          {% endif %}
+        </div>
+        <div class="cg-comparison-body">
+          {% if env_status.import.total == 0 %}
+            <p class="cg-empty-state">{{ 'No changes'|t }}</p>
+          {% else %}
+            <ul class="cg-change-summary">
+              {% if env_status.import.create|length > 0 %}
+                <li class="cg-change-summary__item cg-change-summary__item--create">
+                  <span class="cg-change-count">{{ env_status.import.create|length }}</span>
+                  {{ 'to create'|t }}
+                </li>
+              {% endif %}
+              {% if env_status.import.update|length > 0 %}
+                <li class="cg-change-summary__item cg-change-summary__item--update">
+                  <span class="cg-change-count">{{ env_status.import.update|length }}</span>
+                  {{ 'to update'|t }}
+                </li>
+              {% endif %}
+              {% if env_status.import.delete|length > 0 %}
+                <li class="cg-change-summary__item cg-change-summary__item--delete">
+                  <span class="cg-change-count">{{ env_status.import.delete|length }}</span>
+                  {{ 'to delete'|t }}
+                  {% if env_status.import.delete|length > 10 %}
+                    <span class="cg-warning-inline">&#9888;</span>
+                  {% endif %}
+                </li>
+              {% endif %}
+            </ul>
+            <div class="cg-comparison-total">
+              {{ 'Total:'|t }} {{ env_status.import.total }} {{ 'changes'|t }}
+            </div>
+          {% endif %}
+        </div>
+        <div class="cg-comparison-footer">
+          <a href="{{ path('config_guardian.sync.import') }}" class="cg-btn cg-btn--small {% if env_status.recommendation == 'import' %}cg-btn--primary{% else %}cg-btn--outline{% endif %}">
+            {{ 'Go to Import'|t }}
+          </a>
+        </div>
+      </div>
+
+      {# Export Direction #}
+      <div class="cg-comparison-card {% if env_status.recommendation == 'export' %}cg-comparison-card--recommended{% endif %}">
+        <div class="cg-comparison-header">
+          <h4>
+            <span class="cg-direction-icon">&#8593;</span>
+            {{ 'Export'|t }} <small>(active &rarr; sync)</small>
+          </h4>
+          {% if env_status.recommendation == 'export' %}
+            <span class="cg-badge cg-badge--success">{{ 'Recommended'|t }}</span>
+          {% endif %}
+        </div>
+        <div class="cg-comparison-body">
+          {% if env_status.export.total == 0 %}
+            <p class="cg-empty-state">{{ 'No changes'|t }}</p>
+          {% else %}
+            <ul class="cg-change-summary">
+              {% if env_status.export.create|length > 0 %}
+                <li class="cg-change-summary__item cg-change-summary__item--create">
+                  <span class="cg-change-count">{{ env_status.export.create|length }}</span>
+                  {{ 'to create'|t }}
+                </li>
+              {% endif %}
+              {% if env_status.export.update|length > 0 %}
+                <li class="cg-change-summary__item cg-change-summary__item--update">
+                  <span class="cg-change-count">{{ env_status.export.update|length }}</span>
+                  {{ 'to update'|t }}
+                </li>
+              {% endif %}
+              {% if env_status.export.delete|length > 0 %}
+                <li class="cg-change-summary__item cg-change-summary__item--delete">
+                  <span class="cg-change-count">{{ env_status.export.delete|length }}</span>
+                  {{ 'to delete'|t }}
+                  {% if env_status.export.delete|length > 10 %}
+                    <span class="cg-warning-inline">&#9888;</span>
+                  {% endif %}
+                </li>
+              {% endif %}
+            </ul>
+            <div class="cg-comparison-total">
+              {{ 'Total:'|t }} {{ env_status.export.total }} {{ 'changes'|t }}
+            </div>
+          {% endif %}
+        </div>
+        <div class="cg-comparison-footer">
+          <a href="{{ path('config_guardian.sync.export') }}" class="cg-btn cg-btn--small {% if env_status.recommendation == 'export' %}cg-btn--primary{% else %}cg-btn--outline{% endif %}">
+            {{ 'Go to Export'|t }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Modified Configs and Recent Activity #}
+  {% if notable_changes %}
+  <div class="cg-dashboard-grid">
+    {# Modified Configs #}
+    <div class="cg-card cg-card--changes">
+      <div class="cg-card-header">
+        <h3 class="cg-card-title">{{ 'Modified Configurations'|t }}</h3>
+        <a href="{{ path('config_guardian.analyze') }}" class="cg-link">{{ 'View All'|t }} &rarr;</a>
+      </div>
+      <div class="cg-card-body">
+        <div class="cg-changes-list">
+          {% for change in notable_changes %}
+            <div class="cg-change-item">
+              <div class="cg-change-type cg-change-type--{{ change.type }}">
+                MOD
+              </div>
+              <div class="cg-change-info">
+                <code class="cg-change-name">{{ change.name }}</code>
+                <span class="cg-change-meta">{{ change.dependencies }} {{ 'dependencies'|t }}</span>
+              </div>
+              <span class="cg-risk-badge cg-risk-badge--{{ change.risk }}">
+                {{ change.risk|upper }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {# Recent Activity (in grid) #}
+    <div class="cg-card cg-card--activity">
+      <div class="cg-card-header">
+        <h3 class="cg-card-title">{{ 'Recent Activity'|t }}</h3>
+        <a href="{{ path('config_guardian.activity') }}" class="cg-link">{{ 'View All'|t }} &rarr;</a>
+      </div>
+      <div class="cg-card-body">
+        {% if recent_activity %}
+          <div class="cg-activity-list">
+            {% for activity in recent_activity %}
+              <div class="cg-activity-item">
+                <div class="cg-activity-dot cg-activity-dot--{{ activity.status }}"></div>
+                <div class="cg-activity-content">
+                  <div class="cg-activity-action">{{ (activity.action|replace({'_': ' '})|capitalize)|t }}</div>
+                  <div class="cg-activity-time">{{ activity.timestamp|date('d M, H:i') }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="cg-empty-state">{{ 'No recent activity.'|t }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  {# Recent Activity (full width when no modifications) #}
+  <div class="cg-card cg-card--activity cg-card--full-width">
+    <div class="cg-card-header">
+      <h3 class="cg-card-title">{{ 'Recent Activity'|t }}</h3>
+      <a href="{{ path('config_guardian.activity') }}" class="cg-link">{{ 'View All'|t }} &rarr;</a>
+    </div>
+    <div class="cg-card-body">
+      {% if recent_activity %}
+        <div class="cg-activity-list cg-activity-list--grid">
+          {% for activity in recent_activity %}
+            <div class="cg-activity-item">
+              <div class="cg-activity-dot cg-activity-dot--{{ activity.status }}"></div>
+              <div class="cg-activity-content">
+                <div class="cg-activity-action">{{ (activity.action|replace({'_': ' '})|capitalize)|t }}</div>
+                <div class="cg-activity-time">{{ activity.timestamp|date('d M, H:i') }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="cg-empty-state">{{ 'No recent activity.'|t }}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Recent Snapshots #}
+  <div class="cg-card cg-card--snapshots">
+    <div class="cg-card-header">
+      <h3 class="cg-card-title">{{ 'Recent Snapshots'|t }}</h3>
+      <a href="{{ path('config_guardian.snapshots') }}" class="cg-link">{{ 'View All'|t }} &rarr;</a>
+    </div>
+    <div class="cg-card-body">
+      {% if recent_snapshots %}
+        <table class="cg-table">
+          <thead>
+            <tr>
+              <th>{{ 'Name'|t }}</th>
+              <th>{{ 'Type'|t }}</th>
+              <th>{{ 'Configs'|t }}</th>
+              <th>{{ 'Created'|t }}</th>
+              <th>{{ 'Actions'|t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for snapshot in recent_snapshots %}
+              <tr>
+                <td>
+                  <a href="{{ path('config_guardian.snapshot.view', {'config_snapshot': snapshot.id}) }}">
+                    {{ snapshot.name }}
+                  </a>
+                </td>
+                <td>
+                  <span class="cg-type-badge cg-type-badge--{{ snapshot.type }}">
+                    {% if snapshot.type == 'auto' %}
+                      {{ 'Automatic'|t }}
+                    {% elseif snapshot.type == 'manual' %}
+                      {{ 'Manual'|t }}
+                    {% elseif snapshot.type == 'pre_import' %}
+                      {{ 'Pre-import'|t }}
+                    {% elseif snapshot.type == 'pre_rollback' %}
+                      {{ 'Pre-rollback'|t }}
+                    {% elseif snapshot.type == 'pre_export' %}
+                      {{ 'Pre-export'|t }}
+                    {% else %}
+                      {{ snapshot.type|replace({'_': ' '})|capitalize }}
+                    {% endif %}
+                  </span>
+                </td>
+                <td>{{ snapshot.config_count }}</td>
+                <td>{{ snapshot.created|date('Y-m-d H:i') }}</td>
+                <td>
+                  <div class="cg-actions">
+                    <a href="{{ path('config_guardian.snapshot.view', {'config_snapshot': snapshot.id}) }}" class="cg-action" title="{{ 'View'|t }}">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </a>
+                    <a href="{{ path('config_guardian.snapshot.rollback', {'config_snapshot': snapshot.id}) }}" class="cg-action" title="{{ 'Rollback'|t }}">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10"/>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                      </svg>
+                    </a>
+                    <a href="{{ path('config_guardian.snapshot.export', {'config_snapshot': snapshot.id}) }}" class="cg-action" title="{{ 'Export'|t }}">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="cg-empty-state">{{ 'No snapshots created yet.'|t }}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>

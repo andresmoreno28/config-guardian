@@ -1,0 +1,28 @@
+config_guardian.settings:
+  type: config_object
+  label: 'Config Guardian settings'
+  mapping:
+    auto_snapshot_enabled:
+      type: boolean
+      label: 'Enable automatic snapshots'
+    auto_snapshot_before_import:
+      type: boolean
+      label: 'Create snapshot before config import'
+    auto_snapshot_interval:
+      type: string
+      label: 'Automatic snapshot interval'
+    max_snapshots:
+      type: integer
+      label: 'Maximum number of snapshots to keep'
+    retention_days:
+      type: integer
+      label: 'Number of days to retain snapshots'
+    compression:
+      type: string
+      label: 'Compression method'
+    exclude_patterns:
+      type: sequence
+      label: 'Configuration patterns to exclude'
+      sequence:
+        type: string
+        label: 'Pattern'

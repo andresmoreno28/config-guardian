@@ -1,0 +1,35 @@
+config_guardian.dashboard:
+  title: 'Dashboard'
+  route_name: config_guardian.dashboard
+  base_route: config_guardian.dashboard
+  weight: 0
+
+config_guardian.snapshots:
+  title: 'Snapshots'
+  route_name: config_guardian.snapshots
+  base_route: config_guardian.dashboard
+  weight: 10
+
+config_guardian.sync:
+  title: 'Sync'
+  route_name: config_guardian.sync
+  base_route: config_guardian.dashboard
+  weight: 15
+
+config_guardian.analyze:
+  title: 'Impact Analysis'
+  route_name: config_guardian.analyze
+  base_route: config_guardian.dashboard
+  weight: 20
+
+config_guardian.activity:
+  title: 'Activity Log'
+  route_name: config_guardian.activity
+  base_route: config_guardian.dashboard
+  weight: 30
+
+config_guardian.settings:
+  title: 'Settings'
+  route_name: config_guardian.settings
+  base_route: config_guardian.dashboard
+  weight: 40

@@ -1,0 +1,81 @@
+{#
+/**
+ * @file
+ * Template for comparing two snapshots.
+ *
+ * Available variables:
+ * - snapshot1: First snapshot data
+ * - snapshot2: Second snapshot data
+ * - diff: Differences between snapshots
+ */
+#}
+
+<div class="config-guardian-compare">
+  <div class="cg-compare-header">
+    <div class="cg-compare-snapshot">
+      <span class="cg-compare-label">{{ 'From'|t }}:</span>
+      <strong>{{ snapshot1.name }}</strong>
+      <span class="cg-compare-date">{{ snapshot1.created|date('Y-m-d H:i') }}</span>
+    </div>
+    <span class="cg-compare-arrow">&rarr;</span>
+    <div class="cg-compare-snapshot">
+      <span class="cg-compare-label">{{ 'To'|t }}:</span>
+      <strong>{{ snapshot2.name }}</strong>
+      <span class="cg-compare-date">{{ snapshot2.created|date('Y-m-d H:i') }}</span>
+    </div>
+  </div>
+
+  <div class="cg-compare-summary">
+    <div class="cg-summary-item cg-summary-item--added">
+      <span class="cg-summary-value">{{ diff.added|length }}</span>
+      <span class="cg-summary-label">{{ 'Added'|t }}</span>
+    </div>
+    <div class="cg-summary-item cg-summary-item--modified">
+      <span class="cg-summary-value">{{ diff.modified|length }}</span>
+      <span class="cg-summary-label">{{ 'Modified'|t }}</span>
+    </div>
+    <div class="cg-summary-item cg-summary-item--removed">
+      <span class="cg-summary-value">{{ diff.removed|length }}</span>
+      <span class="cg-summary-label">{{ 'Removed'|t }}</span>
+    </div>
+  </div>
+
+  {% if diff.added %}
+    <div class="cg-diff-section cg-diff-section--added">
+      <h3>{{ 'Added Configurations'|t }} ({{ diff.added|length }})</h3>
+      <ul class="cg-diff-list">
+        {% for config in diff.added %}
+          <li><code>+ {{ config }}</code></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if diff.modified %}
+    <div class="cg-diff-section cg-diff-section--modified">
+      <h3>{{ 'Modified Configurations'|t }} ({{ diff.modified|length }})</h3>
+      <ul class="cg-diff-list">
+        {% for config in diff.modified %}
+          <li><code>~ {{ config }}</code></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if diff.removed %}
+    <div class="cg-diff-section cg-diff-section--removed">
+      <h3>{{ 'Removed Configurations'|t }} ({{ diff.removed|length }})</h3>
+      <ul class="cg-diff-list">
+        {% for config in diff.removed %}
+          <li><code>- {{ config }}</code></li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if not diff.added and not diff.modified and not diff.removed %}
+    <div class="cg-no-diff">
+      <p>{{ 'No differences between these snapshots.'|t }}</p>
+    </div>
+  {% endif %}
+</div>
